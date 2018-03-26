@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
@@ -6,6 +7,184 @@
 	<script src="jquery/jquery.mobile-1.4.5.js"></script>
 	<link rel="stylesheet" type="text/css" href="jquery/jquery.mobile-1.4.5.css" />
 </head>
+<style>
+	/* Left transition */
+li.left {
+    -webkit-transition: -webkit-transform 250ms ease;
+    -webkit-transform: translateX(-100%);
+    -moz-transition: -moz-transform 250ms ease;
+    -moz-transform: translateX(-100%);
+    -o-transition: -o-transform 250ms ease;
+    -o-transform: translateX(-100%);
+    transition: transform 250ms ease;
+    transform: translateX(-100%);
+}
+/* Right transition */
+li.right {
+    -webkit-transition: -webkit-transform 250ms ease;
+    -webkit-transform: translateX(100%);
+    -moz-transition: -moz-transform 250ms ease;
+    -moz-transform: translateX(100%);
+    -o-transition: -o-transform 250ms ease;
+    -o-transform: translateX(100%);
+    transition: transform 250ms ease;
+    transform: translateX(100%);
+}
+/* Border bottom for the previous button during the transition*/
+li.left a.ui-btn,
+li.right a.ui-btn {
+    border-top-width: 0;
+    border-left-width: 1px;
+    border-right-width: 1px;
+}
+li a.ui-btn.border-bottom {
+    border-bottom-width: 1px;
+}
+/* Hide the delete button on touch devices */
+ul.touch li.ui-li-has-alt a.delete {
+    display: none;
+}
+ul.touch li.ui-li-has-alt a.ui-btn {
+    margin-right:0;
+}
+/* Styling for the popup */
+#confirm p {
+    text-align: center;
+    font-size: inherit;
+    margin-bottom: .75em;
+}
+	#tabs
+	{
+		height: 100%;
+		width: 100%;
+		margin: 0;
+	}
+	#win1content
+	{
+		padding: 0;
+	}
+	#win1
+	{
+		padding: 0;
+	}
+	.plusico:hover
+	{
+		cursor:pointer;
+	}
+	.minusico:hover
+	{
+		cursor:pointer;
+	}
+</style>
+<script>
+	$( document ).on( "pagecreate", "#demo-page", function() {
+    // Swipe to remove list item
+    $( document ).on( "swipeleft swiperight", "#list li", function( event ) {
+        var listitem = $( this ),
+            // These are the classnames used for the CSS transition
+            dir = event.type === "swipeleft" ? "left" : "right",
+            // Check if the browser supports the transform (3D) CSS transition
+            transition = $.support.cssTransform3d ? dir : false;
+            confirmAndDelete( listitem, transition );
+    });
+    // If it's not a touch device...
+    if ( ! $.mobile.support.touch ) {
+        // Remove the class that is used to hide the delete button on touch devices
+        $( "#list" ).removeClass( "touch" );
+        // Click delete split-button to remove list item
+        $( ".delete" ).on( "click", function() {
+            var listitem = $( this ).parent( "li" );
+            confirmAndDelete( listitem );
+        });
+    }
+    function confirmAndDelete( listitem, transition ) {
+        // Highlight the list item that will be removed
+        listitem.children( ".ui-btn" ).addClass( "ui-btn-active" );
+        // Inject topic in confirmation popup after removing any previous injected topics
+        $( "#confirm .topic" ).remove();
+        listitem.find( ".topic" ).clone().insertAfter( "#question" );
+        // Show the confirmation popup
+        $( "#confirm" ).popup( "open" );
+        // Proceed when the user confirms
+        $( "#confirm #yes" ).on( "click", function() {
+            // Remove with a transition
+            if ( transition ) {
+                listitem
+                    // Add the class for the transition direction
+                    .addClass( transition )
+                    // When the transition is done...
+                    .on( "webkitTransitionEnd transitionend otransitionend", function() {
+                        // ...the list item will be removed
+                        listitem.remove();
+                        // ...the list will be refreshed and the temporary class for border styling removed
+                        $( "#list" ).listview( "refresh" ).find( ".border-bottom" ).removeClass( "border-bottom" );
+                    })
+                    // During the transition the previous button gets bottom border
+                    .prev( "li" ).children( "a" ).addClass( "border-bottom" )
+                    // Remove the highlight
+                    .end().end().children( ".ui-btn" ).removeClass( "ui-btn-active" );
+            }
+            // If it's not a touch device or the CSS transition isn't supported just remove the list item and refresh the list
+            else {
+                listitem.remove();
+                $( "#list" ).listview( "refresh" );
+            }
+        });
+        // Remove active state and unbind when the cancel button is clicked
+        $( "#confirm #cancel" ).on( "click", function() {
+            listitem.children( ".ui-btn" ).removeClass( "ui-btn-active" );
+            $( "#confirm #yes" ).off();
+        });
+    }
+});
+	function nightMode()
+	{
+		var bgCheck = document.getElementById("flip-6");
+ 		var bgValue = bgCheck.options[bgCheck.selectedIndex].value;
+		if(bgValue == "on")
+		{
+			document.getElementById("calculator").style.background = "#142634";
+			document.getElementById("calculator").style.color = "#bdc7c1";
+			document.getElementById("rgb").style.background = "#142634";
+			document.getElementById("rgb").style.color = "#bdc7c1";
+			document.getElementById("diary").style.background = "#142634";
+			document.getElementById("diary").style.color = "#bdc7c1";
+		}
+		else
+		{
+			document.getElementById("calculator").style.background = "#f9f9f9";
+			document.getElementById("calculator").style.color = "#333";
+			document.getElementById("rgb").style.background = "#f9f9f9";
+			document.getElementById("rgb").style.color = "#333";
+			document.getElementById("diary").style.background = "#f9f9f9";
+			document.getElementById("diary").style.color = "#333";
+		}
+	}
+	function addList()
+	{
+		var name = document.getElementById("listname").value;
+		var title = document.getElementById("listtitle").value;
+		var desc = document.getElementById("listdesc").value;
+		var time = document.getElementById("listtime").value;
+		var listPtr = document.getElementsByClassName("todopoint");
+		var addThis = "<li class='todopoint ui-li-has-alt ui-last-child'><a href='#demo-mail' class='ui-btn'>";
+		addThis += "<h3>" + name + "</h3>";
+		addThis += "<p class='topic'><strong>" + title + "</strong></p>";
+                addThis += "<p>" + desc + "</p>";
+                addThis += "<p class='ui-li-aside'><strong>" + time + "</strong></p>"; 
+                addThis += "</a><a href='#' class='delete delete ui-btn ui-btn-icon-notext ui-icon-delete'>Delete</a></li>";
+		if(listPtr.length == 1)
+		{
+			listPtr[listPtr.length-1].className = "todopoint ui-li-static ui-body-inherit ui-first-child";
+		}
+		else
+		{
+			listPtr[listPtr.length-1].className = "todopoint ui-li-has-alt";
+		}
+		$( ".todopoint" ).last().after( addThis );
+		alert("Success!");
+	}
+</script>
 <script>
 	function calculator()
 	{
@@ -65,21 +244,7 @@
 	}
 </script>
 <body>
-	<div data-role="page" id=home>
-		<div data-role="header">
-			<h1>Home</h1>
-		</div>
-		<form>
-			<div class="ui-field-contain">
-    			<select name="select-native-1" id="select-native-1" onchange="location = this.value;">
-        			<option value="#home">Home</option>
-       	 			<option value="#calculator">Calculator</option>
-       		 		<option value="#rgb">Red Green Blue</option>
-        			<option value="#diary">Diary</option>
-    			</select>
-			</div>
-		</form>
-	</div>
+<div id=win1>
 	<div data-role="page" id=calculator>
 		<div data-role="header">
 			<h1>Calculator</h1>
@@ -87,8 +252,7 @@
 		<form>
 			<div class="ui-field-contain">
     			<select name="select-native-1" id="select-native-1" onchange="location = this.value;">
-				<option value="#calculator">Calculator</option>
-        			<option value="#home">Home</option>
+				<option value="#calculator" selected>Calculator</option>
        		 		<option value="#rgb">Red Green Blue</option>
         			<option value="#diary">Diary</option>
     			</select>
@@ -130,8 +294,7 @@
 		<form>
 			<div class="ui-field-contain">
     			<select name="select-native-1" id="select-native-1" onchange="location = this.value;">
-				<option value="#rgb">Red Green Blue</option>
-        			<option value="#home">Home</option>
+				<option value="#rgb" selected>Red Green Blue</option>
        	 			<option value="#calculator">Calculator</option>
         			<option value="#diary">Diary</option>
     			</select>
@@ -173,6 +336,39 @@
 			</tr>
 		</table>
 	</div>
+	<div data-role="page" id="demo-page" data-title="Inbox" data-url="demo-page">
+    <div data-role="header" data-position="fixed" data-theme="b">
+        <h1>To-Do List</h1>
+        <a href="#demo-intro" data-rel="back" data-icon="carat-l" data-iconpos="notext">Back</a>
+        <a href="#" onclick="window.location.reload()" data-icon="back" data-iconpos="notext">Refresh</a>
+    </div><!-- /header -->
+    <div role="main" class="ui-content">
+        <ul id="list" class="touch" data-role="listview" data-icon="false" data-split-icon="delete">
+	    <li class="todopoint" style="display:none">
+	    </li>
+            <li class="todopoint">
+                <a href="#demo-mail">
+                    <h3>Miscavel</h3>
+                    <p class="topic"><strong>Fishing in Calpheon</strong></p>
+                    <p>Item Checklist : Ancient Relic Shards and Washed-up Laundry</p>
+                    <p class="ui-li-aside"><strong>15:50</strong></p>
+                </a>
+                <a href="#" class="delete">Delete</a>
+            </li>
+        </ul>
+    </div><!-- /content -->
+    <div id="confirm" class="ui-content" data-role="popup" data-theme="a">
+        <p id="question">Are you sure you want to delete:</p>
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <a id="yes" class="ui-btn ui-corner-all ui-mini ui-btn-a" data-rel="back">Yes</a>
+            </div>
+            <div class="ui-block-b">
+                <a id="cancel" class="ui-btn ui-corner-all ui-mini ui-btn-a" data-rel="back">Cancel</a>
+            </div>
+        </div>
+    </div><!-- /popup -->
+</div>
 	<div data-role="page" id=diary>
 		<div data-role="header">
 			<h1>Diary</h1>
@@ -180,13 +376,71 @@
 		<form>
 			<div class="ui-field-contain">
     			<select name="select-native-1" id="select-native-1" onchange="location = this.value;">
-				<option value="#diary">Diary</option>
-        			<option value="#home">Home</option>
+				<option value="#diary" selected>Diary</option>
        	 			<option value="#calculator">Calculator</option>
        		 		<option value="#rgb">Red Green Blue</option>
     			</select>
 			</div>
 		</form>
+		<div data-role="tabs" id="tabs">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#swipelist" class="ui-link ui-btn ui-tabs-anchor ui-btn-active">Swipe List</a></li>
+				<li><a href="#coolstuff">Cool Stuff</a></li>
+			</ul>
+		</div>
+		<div class="active" id="swipelist">
+			<a href="#demo-page" data-transition="fade" class="ui-btn ui-corner-all ui-shadow ui-btn-inline">To-Do List</a>
+			<form>
+			<table id="todoform">
+				<tr>
+					<td>Name</td>
+					<td>:</td>
+					<td><input type="text" id="listname" placeholder="Miscavel" /></td>
+				</tr>
+				<tr>
+					<td>Title</td>
+					<td>:</td>
+					<td><input type="text" id="listtitle" placeholder="Cooking" /></td>
+				</tr>
+				<tr>
+					<td>Description</td>
+					<td>:</td>
+					<td><input type="text" id="listdesc" placeholder="Beer & Ginger Ale" /></td>
+				</tr>
+				<tr>
+					<td>Time</td>
+					<td>:</td>
+					<td><input type="time" id="listtime" /></td>
+				</tr>
+				<tr>
+					<td colspan=3><input type="button" onclick="addList()" value="Add" style="width:100%" /></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+		<div id="coolstuff">
+			<p><a href="#right-panel" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-mini">Click Me</a></p>
+			<div data-role="panel" id="right-panel" data-display="overlay" data-position="right">
+        		<ul data-role="listview" data-icon="false">
+            			<li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+            			<li data-role="list-divider">Recommended Games</li>
+            			<li><a href="http://sea.playblackdesert.com">Black Desert Online</a></li>
+           			<li><a href="http://aq.com">Adventure Quest World</a></li>
+           			<li><a href="https://playhearthstone.com/">Hearthstone</a></li>
+        		</ul>
+    			</div>
+			<form>
+    			<div class="ui-field-contain">
+       				<label for="flip-6" style="margin-right:-150px">Night Mode :</label>
+        				<select onchange="nightMode();" name="flip-6" id="flip-6" data-role="slider">
+            					<option value="off">Off</option>
+            					<option value="on">On</option>
+       					</select>
+    			</div>
+			</form>
+		</div>
 	</div>
+</div>
 </body>
 </html>
