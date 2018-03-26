@@ -54,6 +54,15 @@
 		hexadecimal = hexadecimal.split("").reverse().join("");
 		document.getElementById("hexadecimal").value = hexadecimal;
 	}
+
+	function colorize()
+	{
+		var red = document.getElementById("red").value;
+		var green = document.getElementById("green").value;
+		var blue = document.getElementById("blue").value;
+		var colorcode = red + ", " + green+ ", " + blue;
+		document.getElementById("colorize").style.backgroundColor = "rgb(" + colorcode + ")";
+	}
 </script>
 <body>
 	<div data-role="page" id=home>
@@ -85,7 +94,6 @@
     			</select>
 			</div>
 		</form>
-		<form>
 		<table>
 			<tr>
 				<td>Decimal</td>
@@ -114,7 +122,6 @@
 				</td>
 			</tr>
 		</table>
-		</form>
 	</div>
 	<div data-role="page" id=rgb>
 		<div data-role="header">
@@ -130,6 +137,41 @@
     			</select>
 			</div>
 		</form>
+		<table>
+			<tr>
+				<td>Red</td>
+				<td>:</td>
+				<td style="width:500px">
+					<input type="range" name="slider-1" id="red" min="0" max="255" value="127">
+				</td>
+			</tr>
+			<tr>
+				<td>Green</td>
+				<td>:</td>
+				<td>
+					<input type="range" name="slider-1" id="green" min="0" max="255" value="127">
+				</td>
+			</tr>
+			<tr>
+				<td>Blue</td>
+				<td>:</td>
+				<td>
+					<input type="range" name="slider-1" id="blue" min="0" max="255" value="127">
+				</td>
+			</tr>
+			<tr>
+				<td colspan = 3>
+					<input type="button" onclick="colorize()" value="Colorize" style="width:100%" />
+				</td>
+			</tr>
+			<tr>
+				<td>Color</td>
+				<td>:</td>
+				<td>
+					<input type="text" name="text-3" id="colorize" value="" readonly>
+				</td>
+			</tr>
+		</table>
 	</div>
 	<div data-role="page" id=diary>
 		<div data-role="header">
